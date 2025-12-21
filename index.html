@@ -397,7 +397,7 @@
             { amount: 500, message: "Swerte! Merry Christmas!!", emoji: "😄" }
         ];
 
-        let results = [];
+        let results = JSON.parse(localStorage.getItem('pamaskResults') || '[]');
 
         let soundEnabled = true;
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -607,50 +607,37 @@
                 } else {
                     displayAmount = '₱' + prize.amount.toLocaleString();
                     amountEl.textContent = '₱ ' + prize.amount.toLocaleString();
-                    if (prize.amount >= 500) {
+                    
+                    if (prize.amount === 500) {
+                        createConfetti();
                         playBigWinSound();
-                    } else if (prize.amount >= 50) {
-                        playWinSound();
                     } else {
-                        playClickSound();
+                        playWinSound();
                     }
                 }
                 
-                results.unshift({
-                    name: playerName,
-                    prize: prize.amount,
-                    displayAmount: displayAmount,
-                    emoji: prize.emoji,
-                    time: timeString
-                });
-                
-                updateResultsDisplay();
-
                 messageEl.textContent = prize.message;
                 emojiEl.textContent = prize.emoji;
+                
+                results.unshift({
+                    name: playerName,
+                    displayAmount: displayAmount,
+                    time: timeString,
+                    emoji: prize.emoji
+                });
+                
+                localStorage.setItem('pamaskResults', JSON.stringify(results));
+                updateResultsDisplay();
 
                 resultBox.classList.remove('spinning');
-
-                if (prize.amount >= 500) {
-                    createConfetti();
-                }
-
                 btn.disabled = false;
             }, 1000);
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const nameInput = document.getElementById('nameInput');
-            nameInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    randomize();
-                }
-            });
-        });
-
-        window.onload = function() {
+        window.addEventListener('DOMContentLoaded', () => {
             createSnowflakes();
-        };
+            updateResultsDisplay();
+        });
     </script>
 </body>
 </html>
